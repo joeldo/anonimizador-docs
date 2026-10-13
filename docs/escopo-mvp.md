@@ -36,6 +36,8 @@ A saída não precisa reproduzir fielmente o layout, as tabelas, as colunas, as 
 
 O sistema deve detectar CPF, CNPJ, e-mail, telefone e CEP por regex, contemplando apresentações brasileiras usuais com e sem formatação quando aplicável.
 
+CPF e CNPJ numéricos devem ter os dois dígitos verificadores validados, rejeitando sequências com todos os dígitos iguais. Valores com verificadores incorretos não devem ser classificados nessas categorias, mesmo que tenham o formato esperado; essa filtragem pode deixar identificadores digitados incorretamente sem cobertura.
+
 A detecção por padrão não constitui consulta cadastral nem comprovação da existência ou titularidade do identificador.
 
 ### RF-04 — Detectar nomes e endereços com LLM

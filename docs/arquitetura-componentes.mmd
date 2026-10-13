@@ -1,5 +1,7 @@
 flowchart TD
     client["Cliente"] -->|"PDF com camada de texto"| api["API FastAPI"]
+    client -->|"Caminho do PDF"| cli["CLI python -m api.cli"]
+    cli --> service
     api --> service["AnonymizationService<br/>Orquestracao por documento"]
     service --> config{"Configuracao valida?<br/>PRIVACY_MODE=local por padrao"}
     config -->|"Nao"| error["Erro explicito<br/>Sem conteudo pessoal ou credenciais"]
@@ -9,13 +11,13 @@ flowchart TD
     extractor -->|"Texto original"| configured
     extractor -->|"Markdown original"| replacer
 
-    subgraph entityDetector["EntityDetector - contrato comum de entidades"]
+    subgraph entityDetector["FallbackDetector - contrato EntityDetector"]
         configured{"LLM configurada?"}
         configured -->|"Nao: fallback"| presidio["PresidioDetector<br/>Microsoft Presidio + spaCy pt_core_news_lg<br/>Execucao local"]
         configured -->|"Sim"| privacy{"Endpoint permitido pela politica?<br/>Local: somente LLM local<br/>Remoto: autorizacao explicita"}
         privacy -->|"Nao: bloquear antes do envio"| presidio
-        privacy -->|"Sim: enviar somente texto necessario"| llm["LlmDetector<br/>API compativel com OpenAI<br/>Somente deteccao de nomes e enderecos"]
-        llm -->|"Resposta"| valid{"Resposta valida no contrato<br/>e compativel com o texto original?"}
+        privacy -->|"Sim: texto extraido completo, sem PDF ou metadados"| llm["LlmDetector<br/>API compativel com OpenAI<br/>Sem redirects ou proxies de ambiente<br/>Somente deteccao de nomes e enderecos"]
+        llm -->|"JSON entidades: tipo e texto"| valid{"Schema Pydantic valido<br/>e textos presentes no documento?"}
         llm -->|"Timeout, conexao, erro HTTP<br/>ou indisponibilidade: fallback"| presidio
         valid -->|"Nao: resposta malformada, entidade inexistente<br/>ou posicoes invalidas: fallback"| presidio
         valid -->|"Sim"| entities["Entidades validadas<br/>Nomes e enderecos com posicoes"]
@@ -23,15 +25,20 @@ flowchart TD
         presidio -->|"Falha ou modelo indisponivel"| error
     end
 
-    regex -->|"Identificadores com posicoes"| replacer["PseudonymReplacer<br/>Substituicao deterministica apos deteccao completa<br/>Resolver sobreposicoes e manter pseudonimos consistentes"]
+    regex -->|"Identificadores com posicoes"| replacer["PseudonymReplacer<br/>Substituicao deterministica apos deteccao completa<br/>Priorizar entidade mais longa e manter pseudonimos consistentes"]
     regex -->|"Falha"| error
     entities -->|"Nomes e enderecos com posicoes"| replacer
-    replacer -->|"Markdown pseudonimizado"| result["Resposta de sucesso<br/>Somente Markdown, sem mapa de correspondencias"]
+    replacer -->|"Markdown pronto: registrar sucesso antes de devolver"| repository["RunRepository"]
+    repository -->|"Persistencia concluida"| result["Resposta de sucesso<br/>Somente Markdown, sem mapa de correspondencias"]
+    repository -->|"Falha de persistencia"| error
     replacer -->|"Falha"| error
     result -->|"Markdown"| api
     error -->|"Resposta nao exitosa"| api
     api -->|"Markdown ou erro"| client
+    result -->|"Markdown em stdout"| cli
+    error -->|"Erro em stderr e codigo nao zero"| cli
 
-    result -.->|"Somente metadados operacionais"| repository["RunRepository"]
-    error -.->|"Somente metadados operacionais"| repository
-    repository --> sqlite[("SQLite<br/>Sem PDF, texto, entidades ou correspondencias")]
+    service -.->|"Registrar falhas do pipeline: somente metadados"| repository
+    repository --> sqlite[("SQLite<br/>Detector e motivo de fallback enumerados<br/>Sem PDF, texto, entidades ou correspondencias")]
+    api -->|"GET /runs: limit e offset"| repository
+    repository -->|"Pagina de metadados: items, total, limit, offset"| api
