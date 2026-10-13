@@ -1,4 +1,5 @@
 from threading import Lock
+import unicodedata
 
 import spacy
 from presidio_analyzer import AnalyzerEngine, Pattern, PatternRecognizer, RecognizerRegistry
@@ -10,9 +11,20 @@ from models.entity import Entity, EntityType
 from services.privacy_logging import sensitive_processing
 
 _ENTITY_TYPES: dict[str, EntityType] = {"PERSON": "PESSOA", "LOCATION": "ENDERECO"}
+_FIELD_LABELS = frozenset({
+    "endereco", "endereco comercial", "endereco residencial", "logradouro",
+    "bairro", "cidade", "municipio", "contratante", "contratada", "participante",
+    "candidato", "candidata", "remetente", "destinatario", "destinataria",
+    "cliente", "responsavel", "nome", "testemunha",
+})
+_ADDRESS_TYPES = (
+    r"(?:Rua|R\.|Avenida|Av\.|Travessa|Trav\.|Alameda|Al\.|Pra[cç]a|P[cç]\.|"
+    r"Estrada|Estr\.|Rodovia|Rod\.)"
+)
+_ADDRESS_SEGMENT = r"(?!CEP\b)[^\s,;](?:[^\n,;]*[^\s,;.])?"
 _ADDRESS_PATTERN = (
-    r"\b(?:Rua|Avenida|Av\.|Travessa|Alameda|Praca|Praça|Estrada|Rodovia)"
-    r"[ \t]+[^\n,;]+,[ \t]*[0-9]+(?:[ \t]*,[ \t]*[^\n;]+)?"
+    rf"\b{_ADDRESS_TYPES}[ \t]+[^\n,;0-9]+?,?[ \t]*\d+[A-Za-z]?"
+    rf"(?:(?:[ \t]*,[ \t]*|[ \t]+-[ \t]+){_ADDRESS_SEGMENT})*"
 )
 
 
@@ -78,8 +90,18 @@ class PresidioDetector:
                             or not 0 <= result.start < result.end <= len(conteudo)
                         ):
                             raise EntityDetectionError("detection_failed")
+                        span = conteudo[result.start:result.end]
+                        normalized = "".join(
+                            char for char in unicodedata.normalize("NFKD", span.casefold())
+                            if not unicodedata.combining(char)
+                        )
+                        if (
+                            normalized in _FIELD_LABELS
+                            and conteudo[result.end:].lstrip().startswith(":")
+                        ):
+                            continue
                         entidades.append(Entity(
-                            _ENTITY_TYPES[result.entity_type], conteudo[result.start:result.end],
+                            _ENTITY_TYPES[result.entity_type], span,
                             offset + result.start, offset + result.end,
                         ))
                 offset += len(linha)
