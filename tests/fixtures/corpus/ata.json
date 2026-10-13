@@ -1,0 +1,40 @@
+{
+  "documento": "ata.pdf",
+  "seed": 20261013,
+  "sintetico": true,
+  "entidades": [
+    {
+      "tipo": "PESSOA",
+      "texto": "Marina Campolume"
+    },
+    {
+      "tipo": "CPF",
+      "texto": "806.063.533-64"
+    },
+    {
+      "tipo": "CNPJ",
+      "texto": "07.140.342/0001-56"
+    },
+    {
+      "tipo": "EMAIL",
+      "texto": "contato4@example.org"
+    },
+    {
+      "tipo": "TELEFONE",
+      "texto": "(00) 90000-0004"
+    },
+    {
+      "tipo": "CEP",
+      "texto": "00000-004"
+    },
+    {
+      "tipo": "ENDERECO",
+      "texto": "Rua das Nuvens de Papel, 40, Vila Inventada"
+    },
+    {
+      "tipo": "PESSOA",
+      "texto": "Marina Campolume"
+    }
+  ],
+  "cpfs_invalidos": []
+}

@@ -1,0 +1,46 @@
+{
+  "documento": "contrato.pdf",
+  "seed": 20261013,
+  "sintetico": true,
+  "entidades": [
+    {
+      "tipo": "PESSOA",
+      "texto": "Caio Ventobravo"
+    },
+    {
+      "tipo": "CPF",
+      "texto": "973.957.169-73"
+    },
+    {
+      "tipo": "CNPJ",
+      "texto": "99.039.103/0001-22"
+    },
+    {
+      "tipo": "EMAIL",
+      "texto": "contato1@example.org"
+    },
+    {
+      "tipo": "TELEFONE",
+      "texto": "(00) 90000-0001"
+    },
+    {
+      "tipo": "CEP",
+      "texto": "00000-001"
+    },
+    {
+      "tipo": "ENDERECO",
+      "texto": "Rua das Nuvens de Papel, 10, Vila Inventada"
+    },
+    {
+      "tipo": "CPF",
+      "texto": "981.392.377-61"
+    },
+    {
+      "tipo": "PESSOA",
+      "texto": "Caio Ventobravo"
+    }
+  ],
+  "cpfs_invalidos": [
+    "981.392.377-61"
+  ]
+}

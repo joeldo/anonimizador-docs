@@ -1,0 +1,40 @@
+{
+  "documento": "curriculo.pdf",
+  "seed": 20261013,
+  "sintetico": true,
+  "entidades": [
+    {
+      "tipo": "PESSOA",
+      "texto": "Rafael Nuvemalta"
+    },
+    {
+      "tipo": "CPF",
+      "texto": "763.402.631-00"
+    },
+    {
+      "tipo": "CNPJ",
+      "texto": "90.717.872/0001-68"
+    },
+    {
+      "tipo": "EMAIL",
+      "texto": "contato3@example.org"
+    },
+    {
+      "tipo": "TELEFONE",
+      "texto": "(00) 90000-0003"
+    },
+    {
+      "tipo": "CEP",
+      "texto": "00000-003"
+    },
+    {
+      "tipo": "ENDERECO",
+      "texto": "Rua das Nuvens de Papel, 30, Vila Inventada"
+    },
+    {
+      "tipo": "PESSOA",
+      "texto": "Rafael Nuvemalta"
+    }
+  ],
+  "cpfs_invalidos": []
+}

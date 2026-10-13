@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "anonimizador-pdf"
+version = "0.1.0"
+description = "API para converter PDFs de texto em Markdown com pseudonimos."
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "python-dotenv",
+    "pdfplumber",
+    "presidio-analyzer",
+    "spacy",
+    "python-multipart",
+    "httpx",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "reportlab",
+    "pypdf",
+]
+
+[tool.setuptools.packages.find]
+include = ["api*", "services*", "repositories*", "models*", "detectors*", "scripts*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["presidio: integracao local com pt_core_news_lg previamente instalado"]

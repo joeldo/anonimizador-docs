@@ -1,0 +1,46 @@
+{
+  "documento": "nota_fiscal_simples.pdf",
+  "seed": 20261013,
+  "sintetico": true,
+  "entidades": [
+    {
+      "tipo": "PESSOA",
+      "texto": "Bruno Pedraclara"
+    },
+    {
+      "tipo": "CPF",
+      "texto": "872.856.218-62"
+    },
+    {
+      "tipo": "CNPJ",
+      "texto": "89.073.971/0001-75"
+    },
+    {
+      "tipo": "EMAIL",
+      "texto": "contato5@example.org"
+    },
+    {
+      "tipo": "TELEFONE",
+      "texto": "(00) 90000-0005"
+    },
+    {
+      "tipo": "CEP",
+      "texto": "00000-005"
+    },
+    {
+      "tipo": "ENDERECO",
+      "texto": "Rua das Nuvens de Papel, 50, Vila Inventada"
+    },
+    {
+      "tipo": "CPF",
+      "texto": "896.179.548-19"
+    },
+    {
+      "tipo": "PESSOA",
+      "texto": "Bruno Pedraclara"
+    }
+  ],
+  "cpfs_invalidos": [
+    "896.179.548-19"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "documento": "oficio.pdf",
+  "seed": 20261013,
+  "sintetico": true,
+  "entidades": [
+    {
+      "tipo": "PESSOA",
+      "texto": "Helena Florival"
+    },
+    {
+      "tipo": "CPF",
+      "texto": "202.329.956-05"
+    },
+    {
+      "tipo": "CNPJ",
+      "texto": "65.798.776/0001-44"
+    },
+    {
+      "tipo": "EMAIL",
+      "texto": "contato2@example.org"
+    },
+    {
+      "tipo": "TELEFONE",
+      "texto": "(00) 90000-0002"
+    },
+    {
+      "tipo": "CEP",
+      "texto": "00000-002"
+    },
+    {
+      "tipo": "ENDERECO",
+      "texto": "Rua das Nuvens de Papel, 20, Vila Inventada"
+    },
+    {
+      "tipo": "PESSOA",
+      "texto": "Helena Florival"
+    }
+  ],
+  "cpfs_invalidos": []
+}

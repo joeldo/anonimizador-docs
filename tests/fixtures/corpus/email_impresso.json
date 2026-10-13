@@ -1,0 +1,40 @@
+{
+  "documento": "email_impresso.pdf",
+  "seed": 20261013,
+  "sintetico": true,
+  "entidades": [
+    {
+      "tipo": "PESSOA",
+      "texto": "Luiza Riosereno"
+    },
+    {
+      "tipo": "CPF",
+      "texto": "957.760.433-10"
+    },
+    {
+      "tipo": "CNPJ",
+      "texto": "54.948.429/0001-34"
+    },
+    {
+      "tipo": "EMAIL",
+      "texto": "contato6@example.org"
+    },
+    {
+      "tipo": "TELEFONE",
+      "texto": "(00) 90000-0006"
+    },
+    {
+      "tipo": "CEP",
+      "texto": "00000-006"
+    },
+    {
+      "tipo": "ENDERECO",
+      "texto": "Rua das Nuvens de Papel, 60, Vila Inventada"
+    },
+    {
+      "tipo": "PESSOA",
+      "texto": "Luiza Riosereno"
+    }
+  ],
+  "cpfs_invalidos": []
+}
