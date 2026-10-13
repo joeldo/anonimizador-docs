@@ -33,14 +33,17 @@ Na raiz do repositório, em PowerShell:
 
 ```powershell
 py -3.11 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
-.\.venv\Scripts\python.exe -m spacy download pt_core_news_lg
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-Instale o modelo spaCy para garantir o fallback, mesmo usando LLM. Dependências
-e modelos são baixados na instalação; não há downloads automáticos durante
-o processamento. `/health` não carrega detectores nem verifica sua disponibilidade.
+`requirements.txt` fixa o conjunto transitivo testado, inclusive o modelo
+`pt_core_news_lg`. Para instalar o pacote local em modo editável, com as mesmas
+dependências de desenvolvimento, use
+`.\.venv\Scripts\python.exe -m pip install -e ".[dev]"`.
+Dependências e modelos são baixados na instalação; não há downloads automáticos
+durante o processamento. `/health` não carrega detectores nem verifica sua
+disponibilidade.
 
 Para usar Ollama, instale-o e prepare o modelo:
 
