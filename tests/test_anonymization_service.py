@@ -78,3 +78,29 @@ def test_servico_prioriza_email_sobre_cpf_interno(detector_fixture: EntityDetect
     canvas.showPage()
     canvas.save()
     assert AnonymizationService(detector_fixture).anonymize(buffer.getvalue()) == "[EMAIL_1]"
+
+
+@pytest.mark.parametrize("partial_address", [False, True], ids=["somente-pessoa", "endereco-parcial"])
+def test_servico_mascara_endereco_completo_sem_deteccao_contextual_completa(
+    partial_address: bool,
+) -> None:
+    class ContextDetector:
+        def detect(self, text: str) -> list[Entity]:
+            nome = "Caio Ventobravo"
+            start = text.index(nome)
+            entities = [Entity("PESSOA", nome, start, start + len(nome))]
+            if partial_address:
+                endereco = "R. Sergipe"
+                start = text.index(endereco)
+                entities.append(Entity("ENDERECO", endereco, start, start + len(endereco)))
+            return entities
+
+    buffer = BytesIO()
+    canvas = Canvas(buffer, invariant=1)
+    canvas.drawString(40, 780, "Caio Ventobravo")
+    canvas.drawString(40, 760, "Moro na R. Sergipe, 1200, apto 302, Savassi, CEP 30130-170.")
+    canvas.showPage()
+    canvas.save()
+    markdown = AnonymizationService(ContextDetector()).anonymize(buffer.getvalue())
+    assert markdown == "[PESSOA_1]\nMoro na [ENDERECO_1], CEP [CEP_1]."
+    assert all(value not in markdown for value in ("R. Sergipe", "1200", "apto 302", "Savassi"))

@@ -36,10 +36,10 @@ responsabilidade por revisar, testar e decidir permanece humana.
 
 1. `PdfExtractor` extrai texto com pdfplumber, mantendo a sequência das páginas
    e separações de parágrafos quando identificáveis.
-2. `RegexDetector` detecta identificadores; CPF e CNPJ numéricos precisam ter
-   ambos os dígitos verificadores válidos.
-3. `FallbackDetector` tenta a LLM configurada para nomes e endereços; quando
-   necessário, usa Microsoft Presidio + spaCy `pt_core_news_lg` localmente.
+2. `RegexDetector` detecta identificadores e endereços com tipo de logradouro
+   e número; CPF e CNPJ numéricos precisam ter ambos os dígitos verificadores válidos.
+3. `FallbackDetector` tenta a LLM configurada para complementar nomes e endereços;
+   quando necessário, usa Microsoft Presidio + spaCy `pt_core_news_lg` localmente.
 4. `PseudonymReplacer` une as entidades, prioriza a mais longa em sobreposições
    e substitui deterministicamente. A LLM apenas detecta, nunca reescreve a saída.
 5. SQLite registra somente metadados operacionais.
@@ -234,7 +234,7 @@ Denominadores zero resultam em `N/A`. Ambas as avaliações incluem regex.
 | EMAIL | 6/0/0 | 1,0000 | 1,0000 | 6/0/0 | 1,0000 | 1,0000 |
 | TELEFONE | 6/0/0 | 1,0000 | 1,0000 | 6/0/0 | 1,0000 | 1,0000 |
 | CEP | 6/0/0 | 1,0000 | 1,0000 | 6/0/0 | 1,0000 | 1,0000 |
-| ENDERECO | 6/6/0 | 0,5000 | 1,0000 | 6/0/0 | 1,0000 | 1,0000 |
+| ENDERECO | 6/0/0 | 1,0000 | 1,0000 | 6/0/0 | 1,0000 | 1,0000 |
 
 Presidio usou `pt_core_news_lg` 3.8.0. LLM: Ollama com `qwen3.5:4b`,
 temperatura 0, timeout HTTP de **300 segundos somente na avaliação**, sem

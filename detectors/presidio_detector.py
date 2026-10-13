@@ -2,7 +2,7 @@ from threading import Lock
 import unicodedata
 
 import spacy
-from presidio_analyzer import AnalyzerEngine, Pattern, PatternRecognizer, RecognizerRegistry
+from presidio_analyzer import AnalyzerEngine, RecognizerRegistry
 from presidio_analyzer.nlp_engine import NerModelConfiguration, SpacyNlpEngine
 from presidio_analyzer.predefined_recognizers import SpacyRecognizer
 
@@ -17,15 +17,6 @@ _FIELD_LABELS = frozenset({
     "candidato", "candidata", "remetente", "destinatario", "destinataria",
     "cliente", "responsavel", "nome", "testemunha",
 })
-_ADDRESS_TYPES = (
-    r"(?:Rua|R\.|Avenida|Av\.|Travessa|Trav\.|Alameda|Al\.|Pra[cç]a|P[cç]\.|"
-    r"Estrada|Estr\.|Rodovia|Rod\.)"
-)
-_ADDRESS_SEGMENT = r"(?!CEP\b)[^\s,;](?:[^\n,;]*[^\s,;.])?"
-_ADDRESS_PATTERN = (
-    rf"\b{_ADDRESS_TYPES}[ \t]+[^\n,;0-9]+?,?[ \t]*\d+[A-Za-z]?"
-    rf"(?:(?:[ \t]*,[ \t]*|[ \t]+-[ \t]+){_ADDRESS_SEGMENT})*"
-)
 
 
 def _create_analyzer() -> AnalyzerEngine:
@@ -45,12 +36,6 @@ def _create_analyzer() -> AnalyzerEngine:
             supported_languages=["pt"],
             recognizers=[
                 SpacyRecognizer(supported_language="pt", supported_entities=["PERSON", "LOCATION"]),
-                PatternRecognizer(
-                    supported_entity="LOCATION",
-                    supported_language="pt",
-                    patterns=[Pattern("endereco_brasileiro", _ADDRESS_PATTERN, 0.85)],
-                    name="BrazilianAddressRecognizer",
-                ),
             ],
         )
         return AnalyzerEngine(

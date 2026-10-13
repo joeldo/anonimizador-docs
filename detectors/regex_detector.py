@@ -15,6 +15,16 @@ _TELEFONE = re.compile(
     r"(?:9[0-9]{4}|[2-9][0-9]{3})[- ]?[0-9]{4}(?!\w)"
 )
 _CEP = re.compile(r"(?<!\w)[0-9]{5}-?[0-9]{3}(?!\w)")
+_ADDRESS_TYPES = (
+    r"(?:Rua|R\.|Avenida|Av\.|Travessa|Trav\.|Alameda|Al\.|Pra[cç]a|P[cç]\.|"
+    r"Estrada|Estr\.|Rodovia|Rod\.)"
+)
+_ADDRESS_SEGMENT = r"(?!CEP\b)[^\s,;](?:[^\n,;]*[^\s,;.])?"
+_ENDERECO = re.compile(
+    rf"\b{_ADDRESS_TYPES}[ \t]+[^\n,;0-9]+?,?[ \t]*\d+[A-Za-z]?"
+    rf"(?:(?:[ \t]*,[ \t]*|[ \t]+-[ \t]+){_ADDRESS_SEGMENT})*",
+    re.IGNORECASE,
+)
 
 
 def _check_digit(digitos: str, pesos: tuple[int, ...]) -> str:
@@ -65,7 +75,7 @@ class RegexDetector:
                     entidades.append(Entity(tipo, match.group(), match.start(), match.end()))
         identificadores = tuple(entidades)
         patterns: tuple[tuple[EntityType, re.Pattern[str]], ...] = (
-            ("EMAIL", _EMAIL), ("TELEFONE", _TELEFONE), ("CEP", _CEP),
+            ("EMAIL", _EMAIL), ("TELEFONE", _TELEFONE), ("CEP", _CEP), ("ENDERECO", _ENDERECO),
         )
         for tipo, pattern in patterns:
             for match in pattern.finditer(text):

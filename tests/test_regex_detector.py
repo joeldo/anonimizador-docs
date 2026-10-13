@@ -5,14 +5,57 @@ from pathlib import Path
 
 import pytest
 
-from detectors.regex_detector import RegexDetector, is_valid_cnpj, is_valid_cpf
+from detectors.regex_detector import RegexDetector, _ENDERECO, is_valid_cnpj, is_valid_cpf
 from fixtures.gerar_corpus import DESTINO, SEED, gerar_cnpj, gerar_cpf, invalidar_cpf
+from models.entity import Entity
 from services.pdf_extractor import PdfExtractor
 
 pytestmark = pytest.mark.usefixtures("sem_rede")
 DOCUMENTOS = tuple(sorted(DESTINO.glob("*.pdf")))
 CPF = gerar_cpf(random.Random(SEED))
 CNPJ = gerar_cnpj(random.Random(SEED))
+
+ADDRESS_CASES = [
+    ("Endereco: Rua das Nuvens de Papel, 40, Vila Inventada",
+     "Rua das Nuvens de Papel, 40, Vila Inventada"),
+    ("Moro na R. Sergipe, 1200, apto 302, Savassi, CEP 30130-170.",
+     "R. Sergipe, 1200, apto 302, Savassi"),
+    ("Endereco comercial: Av. Afonso Pena 1500 - Centro", "Av. Afonso Pena 1500 - Centro"),
+    ("Pç. da Liberdade, 10", "Pç. da Liberdade, 10"),
+    ("Rua Aurora, 10; outro texto", "Rua Aurora, 10"),
+    ("Fica na Rua Bahia, 55, Centro.", "Rua Bahia, 55, Centro"),
+    ("Moro na Rua Bahia, 55 desde 2010", "Rua Bahia, 55"),
+    ("Item: servico ficticio. Total: R$ 100,00.", None),
+    ("Endereco: Rua sem numero", None),
+]
+
+
+@pytest.mark.parametrize(("text", "expected"), ADDRESS_CASES)
+def test_regex_endereco_com_flags_presidio(text: str, expected: str | None) -> None:
+    pattern = re.compile(_ENDERECO.pattern, re.DOTALL | re.MULTILINE | re.IGNORECASE)
+    matches = [] if expected is None else [expected]
+    assert [m.group() for m in pattern.finditer(text)] == matches
+    assert [m.group() for m in _ENDERECO.finditer(text)] == matches
+
+
+@pytest.mark.parametrize(("text", "expected"), ADDRESS_CASES)
+@pytest.mark.parametrize("lowercase", [False, True])
+def test_regex_spans_enderecos(text: str, expected: str | None, lowercase: bool) -> None:
+    if lowercase:
+        text = text.lower()
+        expected = expected.lower() if expected is not None else None
+    text = "Documento sintetico\n\n" + text
+    entities = RegexDetector().detect(text)
+    addresses = [e for e in entities if e.tipo == "ENDERECO"]
+    if expected is None:
+        assert addresses == []
+    else:
+        start = text.index(expected)
+        assert addresses == [Entity("ENDERECO", expected, start, start + len(expected))]
+    assert all("cep" not in e.texto.casefold() and "30130-170" not in e.texto for e in addresses)
+    if "30130-170" in text:
+        start = text.index("30130-170")
+        assert Entity("CEP", "30130-170", start, start + 9) in entities
 
 
 @pytest.mark.parametrize("caminho", DOCUMENTOS, ids=lambda p: p.stem)
@@ -22,7 +65,7 @@ def test_detecta_identificadores_do_corpus(caminho: Path) -> None:
     esperados = [
         (e["tipo"], e["texto"])
         for e in gabarito["entidades"]
-        if e["tipo"] not in ("PESSOA", "ENDERECO")
+        if e["tipo"] != "PESSOA"
         and e["texto"] not in gabarito["cpfs_invalidos"]
     ]
     entidades = RegexDetector().detect(texto)
