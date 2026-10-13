@@ -12,6 +12,26 @@ consistentes dentro de cada documento, não entre documentos.
 dados pessoais ou informações que permitam reidentificação. Revise a saída
 antes de divulgá-la.
 
+## Como a IA Acelerou Este Projeto
+
+O projeto foi desenvolvido com apoio de IA generativa usando GitHub Copilot no
+Visual Studio Code e o modelo GPT 6.1 Sol. As ferramentas aceleraram a criação
+incremental da estrutura do projeto, dos contratos Pydantic, dos detectores, da
+API FastAPI, da CLI, dos testes automatizados e da documentação técnica.
+
+A IA também auxiliou na organização do backlog por releases, na elaboração do
+diagrama de componentes, na geração do corpus sintético e na proposta de casos
+de teste para erros, fallback, privacidade e isolamento de dependências.
+Isso reduziu o tempo de implementação e permitiu concentrar mais esforço na
+validação de requisitos e riscos do domínio.
+
+As sugestões não foram aceitas automaticamente. Cada mudança relevante passou
+por revisão humana, testes e validação de comportamento. Em especial, foram
+verificados os dados persistidos no SQLite, o bloqueio de vazamento de texto e
+credenciais em logs, a política de chamadas remotas, a qualidade das métricas
+e os resultados do fallback. A IA acelera a produção de artefatos, mas a
+responsabilidade por revisar, testar e decidir permanece humana.
+
 ## Como funciona
 
 1. `PdfExtractor` extrai texto com pdfplumber, mantendo a sequência das páginas
