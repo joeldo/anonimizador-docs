@@ -1,0 +1,37 @@
+flowchart TD
+    client["Cliente"] -->|"PDF com camada de texto"| api["API FastAPI"]
+    api --> service["AnonymizationService<br/>Orquestracao por documento"]
+    service --> config{"Configuracao valida?<br/>PRIVACY_MODE=local por padrao"}
+    config -->|"Nao"| error["Erro explicito<br/>Sem conteudo pessoal ou credenciais"]
+    config -->|"Sim: PDF validado"| extractor["PdfExtractor<br/>PDF para texto / Markdown"]
+    extractor -->|"PDF invalido, sem texto ou falha"| error
+    extractor -->|"Texto original"| regex["RegexDetector<br/>CPF, CNPJ, e-mail, telefone e CEP"]
+    extractor -->|"Texto original"| configured
+    extractor -->|"Markdown original"| replacer
+
+    subgraph entityDetector["EntityDetector - contrato comum de entidades"]
+        configured{"LLM configurada?"}
+        configured -->|"Nao: fallback"| presidio["PresidioDetector<br/>Microsoft Presidio + spaCy pt_core_news_lg<br/>Execucao local"]
+        configured -->|"Sim"| privacy{"Endpoint permitido pela politica?<br/>Local: somente LLM local<br/>Remoto: autorizacao explicita"}
+        privacy -->|"Nao: bloquear antes do envio"| presidio
+        privacy -->|"Sim: enviar somente texto necessario"| llm["LlmDetector<br/>API compativel com OpenAI<br/>Somente deteccao de nomes e enderecos"]
+        llm -->|"Resposta"| valid{"Resposta valida no contrato<br/>e compativel com o texto original?"}
+        llm -->|"Timeout, conexao, erro HTTP<br/>ou indisponibilidade: fallback"| presidio
+        valid -->|"Nao: resposta malformada, entidade inexistente<br/>ou posicoes invalidas: fallback"| presidio
+        valid -->|"Sim"| entities["Entidades validadas<br/>Nomes e enderecos com posicoes"]
+        presidio -->|"Entidades no mesmo contrato"| entities
+        presidio -->|"Falha ou modelo indisponivel"| error
+    end
+
+    regex -->|"Identificadores com posicoes"| replacer["PseudonymReplacer<br/>Substituicao deterministica apos deteccao completa<br/>Resolver sobreposicoes e manter pseudonimos consistentes"]
+    regex -->|"Falha"| error
+    entities -->|"Nomes e enderecos com posicoes"| replacer
+    replacer -->|"Markdown pseudonimizado"| result["Resposta de sucesso<br/>Somente Markdown, sem mapa de correspondencias"]
+    replacer -->|"Falha"| error
+    result -->|"Markdown"| api
+    error -->|"Resposta nao exitosa"| api
+    api -->|"Markdown ou erro"| client
+
+    result -.->|"Somente metadados operacionais"| repository["RunRepository"]
+    error -.->|"Somente metadados operacionais"| repository
+    repository --> sqlite[("SQLite<br/>Sem PDF, texto, entidades ou correspondencias")]
